@@ -7,10 +7,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io/fs"
+	"net"
+	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/nats-io/nats.go"
+	"github.com/pressly/goose/v3"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog"
 	"github.com/stackus/errors"
@@ -19,6 +24,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -59,6 +65,10 @@ func NewSystem(cfg config.AppConfig) (*System, error) {
 
 }
 
+func (s *System) Config() config.AppConfig {
+	return s.cfg
+}
+
 func (s *System) initWaiter() {
 	s.waiter = waiter.New(waiter.CatchSignals())
 }
@@ -70,6 +80,17 @@ func (s *System) Waiter() waiter.Waiter {
 func (s *System) initDB() (err error) {
 	s.db, err = sql.Open("pgx", s.cfg.PG.Conn)
 	return err
+}
+
+func (s *System) MigrateDB(fs fs.FS) error {
+	goose.SetBaseFS(fs)
+	if err := goose.SetDialect("postgres"); err != nil {
+		return err
+	}
+	if err := goose.Up(s.db, "."); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *System) initJS() (err error) {
@@ -138,6 +159,92 @@ func serverErrorUnaryInterceptor() grpc.UnaryServerInterceptor {
 		resp, err = handler(ctx, req)
 		return resp, errors.SendGRPCError(err)
 	}
+}
+
+func (s *System) WaitForWeb(ctx context.Context) error {
+	webServer := &http.Server{Addr: s.cfg.Web.Address(), Handler: s.mux}
+
+	group, gCtx := errgroup.WithContext(ctx)
+	group.Go(func() error {
+		fmt.Printf("web server started; listening at http://localhost%s\n", s.cfg.Web.Port)
+		defer fmt.Println("web server shutdown")
+		if err := webServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			return err
+		}
+		return nil
+	})
+
+	group.Go(func() error {
+		<-gCtx.Done()
+		fmt.Println("web server to be shutdown")
+		ctx, cancel := context.WithTimeout(context.Background(), s.cfg.ShutdownTimeout)
+		defer cancel()
+		if err := webServer.Shutdown(ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return group.Wait()
+}
+
+func (s *System) WaitForRPC(ctx context.Context) error {
+	listener, err := net.Listen("tcp", s.cfg.Rpc.Address())
+	if err != nil {
+		return err
+	}
+
+	group, gCtx := errgroup.WithContext(ctx)
+	group.Go(func() error {
+		fmt.Println("rpc server started")
+		defer fmt.Println("rpc server shudown")
+		if err := s.RPC().Serve(listener); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	group.Go(func() error {
+		<-gCtx.Done()
+		fmt.Println("rpc server to be shutdown")
+		stopped := make(chan struct{})
+		go func() {
+			s.RPC().GracefulStop()
+			close(stopped)
+		}()
+		timeout := time.NewTimer(s.cfg.ShutdownTimeout)
+		select {
+		case <-timeout.C:
+			// Force stop
+			s.RPC().Stop()
+			return fmt.Errorf("failed to stop rpc server gracefully")
+		case <-stopped:
+			return nil
+		}
+	})
+
+	return group.Wait()
+}
+
+func (s *System) WaitForStream(ctx context.Context) error {
+	closed := make(chan struct{})
+	s.nc.SetClosedHandler(func(*nats.Conn) {
+		close(closed)
+	})
+	group, gCtx := errgroup.WithContext(ctx)
+	group.Go(func() error {
+		fmt.Println("message stream started")
+		defer fmt.Println("message stream stopped")
+		<-closed
+		return nil
+	})
+
+	group.Go(func() error {
+		<-gCtx.Done()
+		return s.nc.Drain()
+	})
+
+	return group.Wait()
 }
 
 func (s *System) initLogger() {

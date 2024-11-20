@@ -3,6 +3,7 @@ package main
 import (
 	"EDA_GO/internal/config"
 	"EDA_GO/internal/system"
+	"EDA_GO/internal/web"
 	"EDA_GO/migrations"
 	"database/sql"
 	"fmt"

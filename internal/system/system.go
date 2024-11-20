@@ -82,6 +82,10 @@ func (s *System) initDB() (err error) {
 	return err
 }
 
+func (s *System) DB() *sql.DB {
+	return s.db
+}
+
 func (s *System) MigrateDB(fs fs.FS) error {
 	goose.SetBaseFS(fs)
 	if err := goose.SetDialect("postgres"); err != nil {
@@ -109,6 +113,10 @@ func (s *System) initJS() (err error) {
 	})
 
 	return err
+}
+
+func (s *System) JS() nats.JetStreamContext {
+	return s.js
 }
 
 func (s *System) initOpenTelemetry() (err error) {
@@ -252,4 +260,7 @@ func (s *System) initLogger() {
 		Environment: s.cfg.Environment,
 		LogLevel:    logger.Level(s.cfg.LogLevel),
 	})
+}
+func (s *System) Logger() zerolog.Logger {
+	return s.logger
 }

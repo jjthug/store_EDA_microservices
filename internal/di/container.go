@@ -74,7 +74,7 @@ func (c *container) Get(key string) any {
 	}
 
 	if _, exists := c.tracked[info.key]; exists {
-		panic(fmt.Sprint("cyclic dependencies encountered while building `%s`, tracked %s", info.key, c.tracked))
+		panic(fmt.Sprintf("cyclic dependencies encountered while building `%s`, tracked %s", info.key, c.tracked))
 	}
 
 	if info.scope == Singleton {
@@ -113,6 +113,33 @@ func (c *container) get(info depInfo) any {
 	return c.get(info)
 }
 
+func (c *container) build(info depInfo, tv tempValue) any {
+	v, err := info.factory(c.builder(info))
+
+	c.mu.Lock()
+
+	if err != nil {
+		delete(c.vals, info.key)
+		c.mu.Unlock()
+		close(tv)
+		panic(fmt.Sprintf("error building dependency %s: %s", info.key, err))
+	}
+
+	c.vals[info.key] = v
+	c.mu.Unlock()
+	close(tv)
+	return v
+}
+
+func (c *container) builder(info depInfo) *container {
+	return &container{
+		parent:  c.parent,
+		deps:    c.deps,
+		vals:    c.vals,
+		tracked: c.tracked.add(info),
+	}
+}
+
 func New() Container {
 	return &container{
 		deps: make(map[string]depInfo),
@@ -125,14 +152,5 @@ func (c *container) scoped() *container {
 		parent: c,
 		deps:   c.deps,
 		vals:   make(map[string]any),
-	}
-}
-
-func (c *container) builder(info depInfo) *container {
-	return &container{
-		parent:  c,
-		deps:    c.deps,
-		vals:    c.vals,
-		tracked: c.tracked.add(info),
 	}
 }

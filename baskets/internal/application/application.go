@@ -1,6 +1,10 @@
 package application
 
-import "context"
+import (
+	"EDA_GO/baskets/internal/domain"
+	"EDA_GO/internal/ddd"
+	"context"
+)
 
 type (
 	StartBasket struct {
@@ -43,5 +47,11 @@ type (
 	}
 
 	Application struct {
+		baskets   domain.BasketRepository
+		stores    domain.StoreRepository
+		products  domain.ProductRepository
+		publisher ddd.EventPublisher[ddd.Event]
 	}
 )
+
+var _ App = (*Application)(nil)

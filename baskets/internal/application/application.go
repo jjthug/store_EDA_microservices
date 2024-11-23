@@ -45,7 +45,7 @@ type (
 		CheckoutBasket(ctx context.Context, checkout CheckoutBasket) error
 		AddItem(ctx context.Context, addItem AddItem) error
 		RemoveItem(ctx context.Context, removeItem RemoveItem) error
-		GetBasket(ctx context.Context, getBasket GetBasket) error
+		GetBasket(ctx context.Context, getBasket GetBasket) (*domain.Basket, error)
 	}
 
 	Application struct {

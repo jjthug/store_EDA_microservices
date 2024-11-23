@@ -39,14 +39,99 @@ func NewBasket(id string) *Basket {
 	}
 }
 
-func (b *basket) Start(customerId string) (ddd.Event, error) {
+func (b *Basket) Start(customerID string) (ddd.Event, error) {
 	if b.Status != BasketUnknown {
 		return nil, ErrBasketCannotBeModified
 	}
 
-	if customerId == "" {
+	if customerID == "" {
 		return nil, ErrCustomerIDCannotBeBlank
 	}
 
-	b.AddEvent(BasketStartedEvent)
+	b.AddEvent(BasketStartedEvent, &BasketStarted{
+		CustomerID: customerID,
+	})
+
+	return ddd.NewEvent(BasketStartedEvent, b), nil
+
+}
+
+func (b Basket) IsCancellable() bool {
+	return b.Status == BasketIsOpen
+}
+
+func (b Basket) IsOpen() bool {
+	return b.Status == BasketIsOpen
+}
+
+func (b *Basket) Cancel() (ddd.Event, error) {
+	if !b.IsCancellable() {
+		return nil, ErrBasketCannotBeCancelled
+	}
+
+	b.AddEvent(BasketCanceledEvent, &BasketCanceled{})
+
+	return ddd.NewEvent(BasketCanceledEvent, b), nil
+}
+
+func (b *Basket) Checkout(paymentID string) (ddd.Event, error) {
+	if !b.IsOpen() {
+		return nil, ErrBasketCannotBeModified
+	}
+
+	if len(b.Items) == 0 {
+		return nil, ErrBasketHasNoItems
+	}
+
+	if paymentID == "" {
+		return nil, ErrPaymentIDCannotBeBlank
+	}
+
+	b.AddEvent(BasketCheckedOutEvent, &BasketCheckedOut{
+		PaymentID: paymentID,
+	})
+
+	return ddd.NewEvent(BasketCheckedOutEvent, b), nil
+}
+
+func (b *Basket) AddItem(store *Store, product *Product, quantity int) error {
+	if !b.IsOpen() {
+		return ErrBasketCannotBeModified
+	}
+
+	if quantity < 0 {
+		return ErrQuantityCannotBeNegative
+	}
+
+	b.AddEvent(BasketItemAddedEvent, &BasketItemAdded{
+		Item: Item{
+			StoreID:      store.ID,
+			ProductID:    product.ID,
+			StoreName:    store.Name,
+			ProductName:  product.Name,
+			ProductPrice: product.Price,
+			Quantity:     quantity,
+		},
+	})
+
+	return nil
+}
+
+func (b *Basket) RemoveItem(product *Product, quantity int) error {
+	if !b.IsOpen() {
+		return ErrBasketCannotBeModified
+	}
+
+	if quantity < 0 {
+		return ErrQuantityCannotBeNegative
+	}
+
+	if _, exists := b.Items[product.ID]; exists {
+		b.AddEvent(BasketItemRemovedEvent, &BasketItemRemoved{
+			ProductID: product.ID,
+			Quantity:  quantity,
+		})
+	}
+
+	return nil
 }

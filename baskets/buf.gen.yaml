@@ -2,7 +2,7 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: eda-in-golang/baskets/basketspb
+    default: EDA_GO/baskets/basketspb
     except:
       - buf.build/googleapis/googleapis
 plugins:

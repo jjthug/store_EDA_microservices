@@ -1,6 +1,6 @@
 # 2. Use a modular monolith architecture
 
-Date: 17/11/2024
+Date: 2022/05/10
 
 ## Status
 
@@ -22,7 +22,7 @@ Big Picture workshop.
 - Payments
 
 As we are using Go for our development; the code that belongs to a module will be placed under
-the [/internal] directory to keep it hidden from the other modules.
+the [/internal](https://go.dev/doc/go1.4#internalpackages) directory to keep it hidden from the other modules.
 
 ## Consequences
 

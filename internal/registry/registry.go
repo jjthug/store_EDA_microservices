@@ -1,6 +1,8 @@
 package registry
 
-import "sync"
+import (
+	"sync"
+)
 
 type (
 	Registrable interface {

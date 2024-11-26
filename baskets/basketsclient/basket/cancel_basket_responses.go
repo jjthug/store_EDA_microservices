@@ -6,7 +6,6 @@ package basket
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 
@@ -47,8 +46,7 @@ func NewCancelBasketOK() *CancelBasketOK {
 	return &CancelBasketOK{}
 }
 
-/*
-CancelBasketOK describes a response with status code 200, with default header values.
+/* CancelBasketOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,19 +79,12 @@ func (o *CancelBasketOK) IsCode(code int) bool {
 	return code == 200
 }
 
-// Code gets the status code for the cancel basket o k response
-func (o *CancelBasketOK) Code() int {
-	return 200
-}
-
 func (o *CancelBasketOK) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /api/baskets/{id}][%d] cancelBasketOK %s", 200, payload)
+	return fmt.Sprintf("[DELETE /api/baskets/{id}][%d] cancelBasketOK  %+v", 200, o.Payload)
 }
 
 func (o *CancelBasketOK) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /api/baskets/{id}][%d] cancelBasketOK %s", 200, payload)
+	return fmt.Sprintf("[DELETE /api/baskets/{id}][%d] cancelBasketOK  %+v", 200, o.Payload)
 }
 
 func (o *CancelBasketOK) GetPayload() models.BasketspbCancelBasketResponse {
@@ -117,8 +108,7 @@ func NewCancelBasketDefault(code int) *CancelBasketDefault {
 	}
 }
 
-/*
-CancelBasketDefault describes a response with status code -1, with default header values.
+/* CancelBasketDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,6 +116,11 @@ type CancelBasketDefault struct {
 	_statusCode int
 
 	Payload *models.RPCStatus
+}
+
+// Code gets the status code for the cancel basket default response
+func (o *CancelBasketDefault) Code() int {
+	return o._statusCode
 }
 
 // IsSuccess returns true when this cancel basket default response has a 2xx status code
@@ -153,19 +148,12 @@ func (o *CancelBasketDefault) IsCode(code int) bool {
 	return o._statusCode == code
 }
 
-// Code gets the status code for the cancel basket default response
-func (o *CancelBasketDefault) Code() int {
-	return o._statusCode
-}
-
 func (o *CancelBasketDefault) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /api/baskets/{id}][%d] cancelBasket default %s", o._statusCode, payload)
+	return fmt.Sprintf("[DELETE /api/baskets/{id}][%d] cancelBasket default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CancelBasketDefault) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /api/baskets/{id}][%d] cancelBasket default %s", o._statusCode, payload)
+	return fmt.Sprintf("[DELETE /api/baskets/{id}][%d] cancelBasket default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CancelBasketDefault) GetPayload() *models.RPCStatus {

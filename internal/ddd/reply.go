@@ -42,7 +42,7 @@ func NewReply(name string, payload ReplyPayload, options ...ReplyOption) Reply {
 	return newReply(name, payload, options...)
 }
 
-func newReply(name string, payload ReplyPayload, options ...ReplyOption) Reply {
+func newReply(name string, payload ReplyPayload, options ...ReplyOption) reply {
 	rep := reply{
 		Entity:     NewEntity(uuid.New().String(), name),
 		payload:    payload,

@@ -1,8 +1,9 @@
 package es
 
 import (
-	"EDA_GO/internal/ddd"
 	"fmt"
+
+	"EDA_GO/internal/ddd"
 )
 
 type EventApplier interface {

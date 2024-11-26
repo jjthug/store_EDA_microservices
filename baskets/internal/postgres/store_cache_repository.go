@@ -1,13 +1,14 @@
 package postgres
 
 import (
-	"EDA_GO/baskets/internal/domain"
-	"EDA_GO/internal/postgres"
 	"context"
 	"database/sql"
 	"fmt"
 
-	"github.com/pkg/errors"
+	"github.com/stackus/errors"
+
+	"EDA_GO/baskets/internal/domain"
+	"EDA_GO/internal/postgres"
 )
 
 type StoreCacheRepository struct {

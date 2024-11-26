@@ -6,7 +6,6 @@ package basket
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 
@@ -47,8 +46,7 @@ func NewStartBasketOK() *StartBasketOK {
 	return &StartBasketOK{}
 }
 
-/*
-StartBasketOK describes a response with status code 200, with default header values.
+/* StartBasketOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,19 +79,12 @@ func (o *StartBasketOK) IsCode(code int) bool {
 	return code == 200
 }
 
-// Code gets the status code for the start basket o k response
-func (o *StartBasketOK) Code() int {
-	return 200
-}
-
 func (o *StartBasketOK) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /api/baskets][%d] startBasketOK %s", 200, payload)
+	return fmt.Sprintf("[POST /api/baskets][%d] startBasketOK  %+v", 200, o.Payload)
 }
 
 func (o *StartBasketOK) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /api/baskets][%d] startBasketOK %s", 200, payload)
+	return fmt.Sprintf("[POST /api/baskets][%d] startBasketOK  %+v", 200, o.Payload)
 }
 
 func (o *StartBasketOK) GetPayload() *models.BasketspbStartBasketResponse {
@@ -119,8 +110,7 @@ func NewStartBasketDefault(code int) *StartBasketDefault {
 	}
 }
 
-/*
-StartBasketDefault describes a response with status code -1, with default header values.
+/* StartBasketDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,6 +118,11 @@ type StartBasketDefault struct {
 	_statusCode int
 
 	Payload *models.RPCStatus
+}
+
+// Code gets the status code for the start basket default response
+func (o *StartBasketDefault) Code() int {
+	return o._statusCode
 }
 
 // IsSuccess returns true when this start basket default response has a 2xx status code
@@ -155,19 +150,12 @@ func (o *StartBasketDefault) IsCode(code int) bool {
 	return o._statusCode == code
 }
 
-// Code gets the status code for the start basket default response
-func (o *StartBasketDefault) Code() int {
-	return o._statusCode
-}
-
 func (o *StartBasketDefault) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /api/baskets][%d] startBasket default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /api/baskets][%d] startBasket default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartBasketDefault) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /api/baskets][%d] startBasket default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /api/baskets][%d] startBasket default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartBasketDefault) GetPayload() *models.RPCStatus {

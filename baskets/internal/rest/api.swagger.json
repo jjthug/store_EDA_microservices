@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Shopping baskets",
+    "title": "Shopping Baskets",
     "version": "1.0.0"
   },
   "tags": [
@@ -112,7 +112,7 @@
     },
     "/api/baskets/{id}/addItem": {
       "put": {
-        "summary": "Add an item with with some quantity to the basket",
+        "summary": "Add or add quantity to an item in the shopping basket",
         "operationId": "addItem",
         "responses": {
           "200": {
@@ -140,7 +140,16 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BasketServiceAddItemBody"
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
             }
           }
         ],
@@ -151,7 +160,7 @@
     },
     "/api/baskets/{id}/checkout": {
       "put": {
-        "summary": "Checkout a shopping basket",
+        "summary": "Checkout with a shopping basket",
         "operationId": "checkoutBasket",
         "responses": {
           "200": {
@@ -179,7 +188,12 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BasketServiceCheckoutBasketBody"
+              "type": "object",
+              "properties": {
+                "paymentId": {
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -190,7 +204,7 @@
     },
     "/api/baskets/{id}/removeItem": {
       "put": {
-        "summary": "Remove some quantity of an item from the basket",
+        "summary": "Remove or remove quantity to an item in the shopping basket",
         "operationId": "removeItem",
         "responses": {
           "200": {
@@ -218,7 +232,16 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BasketServiceRemoveItemBody"
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
             }
           }
         ],
@@ -229,38 +252,6 @@
     }
   },
   "definitions": {
-    "BasketServiceAddItemBody": {
-      "type": "object",
-      "properties": {
-        "productId": {
-          "type": "string"
-        },
-        "quantity": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
-    "BasketServiceCheckoutBasketBody": {
-      "type": "object",
-      "properties": {
-        "paymentId": {
-          "type": "string"
-        }
-      }
-    },
-    "BasketServiceRemoveItemBody": {
-      "type": "object",
-      "properties": {
-        "productId": {
-          "type": "string"
-        },
-        "quantity": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
     "basketspbAddItemResponse": {
       "type": "object"
     },
@@ -273,7 +264,6 @@
         "items": {
           "type": "array",
           "items": {
-            "type": "object",
             "$ref": "#/definitions/basketspbItem"
           }
         }
@@ -359,7 +349,6 @@
         "details": {
           "type": "array",
           "items": {
-            "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
         }

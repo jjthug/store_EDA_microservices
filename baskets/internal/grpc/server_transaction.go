@@ -1,14 +1,15 @@
 package grpc
 
 import (
-	"EDA_GO/baskets/basketspb"
-	"EDA_GO/baskets/internal/application"
-	"EDA_GO/baskets/internal/constants"
-	"EDA_GO/internal/di"
 	"context"
 	"database/sql"
 
 	"google.golang.org/grpc"
+
+	"EDA_GO/baskets/basketspb"
+	"EDA_GO/baskets/internal/application"
+	"EDA_GO/baskets/internal/constants"
+	"EDA_GO/internal/di"
 )
 
 type serverTx struct {
@@ -32,6 +33,7 @@ func (s serverTx) StartBasket(ctx context.Context, request *basketspb.StartBaske
 	}(di.Get(ctx, constants.DatabaseTransactionKey).(*sql.Tx))
 
 	next := server{app: di.Get(ctx, constants.ApplicationKey).(application.App)}
+
 	return next.StartBasket(ctx, request)
 }
 
@@ -42,6 +44,7 @@ func (s serverTx) CancelBasket(ctx context.Context, request *basketspb.CancelBas
 	}(di.Get(ctx, constants.DatabaseTransactionKey).(*sql.Tx))
 
 	next := server{app: di.Get(ctx, constants.ApplicationKey).(application.App)}
+
 	return next.CancelBasket(ctx, request)
 }
 

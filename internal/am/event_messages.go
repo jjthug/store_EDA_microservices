@@ -1,13 +1,14 @@
 package am
 
 import (
-	"EDA_GO/internal/ddd"
-	"EDA_GO/internal/registry"
 	"context"
 	"time"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"EDA_GO/internal/ddd"
+	"EDA_GO/internal/registry"
 )
 
 type (

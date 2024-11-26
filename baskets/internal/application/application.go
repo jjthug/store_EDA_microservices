@@ -1,11 +1,12 @@
 package application
 
 import (
-	"EDA_GO/baskets/internal/domain"
-	"EDA_GO/internal/ddd"
 	"context"
 
-	"github.com/pkg/errors"
+	"github.com/stackus/errors"
+
+	"EDA_GO/baskets/internal/domain"
+	"EDA_GO/internal/ddd"
 )
 
 type (
@@ -43,9 +44,9 @@ type (
 		StartBasket(ctx context.Context, start StartBasket) error
 		CancelBasket(ctx context.Context, cancel CancelBasket) error
 		CheckoutBasket(ctx context.Context, checkout CheckoutBasket) error
-		AddItem(ctx context.Context, addItem AddItem) error
-		RemoveItem(ctx context.Context, removeItem RemoveItem) error
-		GetBasket(ctx context.Context, getBasket GetBasket) (*domain.Basket, error)
+		AddItem(ctx context.Context, add AddItem) error
+		RemoveItem(ctx context.Context, remove RemoveItem) error
+		GetBasket(ctx context.Context, get GetBasket) (*domain.Basket, error)
 	}
 
 	Application struct {

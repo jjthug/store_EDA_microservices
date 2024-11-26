@@ -6,7 +6,6 @@ package item
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 
@@ -47,8 +46,7 @@ func NewAddItemOK() *AddItemOK {
 	return &AddItemOK{}
 }
 
-/*
-AddItemOK describes a response with status code 200, with default header values.
+/* AddItemOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,19 +79,12 @@ func (o *AddItemOK) IsCode(code int) bool {
 	return code == 200
 }
 
-// Code gets the status code for the add item o k response
-func (o *AddItemOK) Code() int {
-	return 200
-}
-
 func (o *AddItemOK) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/addItem][%d] addItemOK %s", 200, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/addItem][%d] addItemOK  %+v", 200, o.Payload)
 }
 
 func (o *AddItemOK) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/addItem][%d] addItemOK %s", 200, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/addItem][%d] addItemOK  %+v", 200, o.Payload)
 }
 
 func (o *AddItemOK) GetPayload() models.BasketspbAddItemResponse {
@@ -117,8 +108,7 @@ func NewAddItemDefault(code int) *AddItemDefault {
 	}
 }
 
-/*
-AddItemDefault describes a response with status code -1, with default header values.
+/* AddItemDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,6 +116,11 @@ type AddItemDefault struct {
 	_statusCode int
 
 	Payload *models.RPCStatus
+}
+
+// Code gets the status code for the add item default response
+func (o *AddItemDefault) Code() int {
+	return o._statusCode
 }
 
 // IsSuccess returns true when this add item default response has a 2xx status code
@@ -153,19 +148,12 @@ func (o *AddItemDefault) IsCode(code int) bool {
 	return o._statusCode == code
 }
 
-// Code gets the status code for the add item default response
-func (o *AddItemDefault) Code() int {
-	return o._statusCode
-}
-
 func (o *AddItemDefault) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/addItem][%d] addItem default %s", o._statusCode, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/addItem][%d] addItem default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddItemDefault) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/addItem][%d] addItem default %s", o._statusCode, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/addItem][%d] addItem default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddItemDefault) GetPayload() *models.RPCStatus {

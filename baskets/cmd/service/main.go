@@ -1,19 +1,23 @@
 package main
 
 import (
-	"EDA_GO/baskets"
-	"EDA_GO/internal/config"
-	"EDA_GO/internal/system"
-	"EDA_GO/internal/web"
 	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
+
+	_ "github.com/jackc/pgx/v4/stdlib"
+
+	"EDA_GO/baskets"
+	"EDA_GO/baskets/migrations"
+	"EDA_GO/internal/config"
+	"EDA_GO/internal/system"
+	"EDA_GO/internal/web"
 )
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Printf("baskets exited abnormally: %s\n", err)
+		fmt.Printf("baskets exitted abnormally: %s\n", err)
 		os.Exit(1)
 	}
 }
@@ -33,15 +37,17 @@ func run() (err error) {
 			return
 		}
 	}(s.DB())
-
+	if err = s.MigrateDB(migrations.FS); err != nil {
+		return err
+	}
 	s.Mux().Mount("/", http.FileServer(http.FS(web.WebUI)))
-	// call the model composition root
+	// call the module composition root
 	if err = baskets.Root(s.Waiter().Context(), s); err != nil {
 		return err
 	}
 
-	fmt.Println("Started baskets service")
-	defer fmt.Println("Stopped baskets sevice")
+	fmt.Println("started baskets service")
+	defer fmt.Println("stopped baskets service")
 
 	s.Waiter().Add(
 		s.WaitForWeb,

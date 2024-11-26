@@ -1,8 +1,9 @@
 package serdes
 
 import (
-	"EDA_GO/internal/registry"
 	"encoding/json"
+
+	"EDA_GO/internal/registry"
 )
 
 type JsonSerde struct {

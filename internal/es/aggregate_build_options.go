@@ -1,8 +1,9 @@
 package es
 
 import (
-	"EDA_GO/internal/registry"
 	"fmt"
+
+	"EDA_GO/internal/registry"
 )
 
 type VersionSetter interface {

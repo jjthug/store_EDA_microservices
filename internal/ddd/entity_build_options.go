@@ -1,8 +1,9 @@
 package ddd
 
 import (
-	"EDA_GO/internal/registry"
 	"fmt"
+
+	"EDA_GO/internal/registry"
 )
 
 type IDSetter interface {
@@ -15,7 +16,7 @@ func SetID(id string) registry.BuildOption {
 			e.SetID(id)
 			return nil
 		}
-		return fmt.Errorf("%T does not have method SetID(string)", v)
+		return fmt.Errorf("%T does not have the method setID(string)", v)
 	}
 }
 
@@ -29,6 +30,6 @@ func SetName(name string) registry.BuildOption {
 			e.SetName(name)
 			return nil
 		}
-		return fmt.Errorf("%T does not have method SetName(string)", v)
+		return fmt.Errorf("%T does not have the method setName(string)", v)
 	}
 }

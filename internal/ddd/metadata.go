@@ -14,7 +14,7 @@ func (m Metadata) Del(key string) {
 	delete(m, key)
 }
 
-func (m Metadata) GetKeys() []string {
+func (m Metadata) Keys() []string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)

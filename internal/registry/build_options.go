@@ -8,6 +8,17 @@ import (
 type BuildOption func(v interface{}) error
 
 // ValidateImplements will verify that the built value implements the given interface
+//
+// Pass interfaces using "(*I)(nil)", like in this example:
+//
+//   type MyInterface interface {
+//       MyMethod(int) bool
+//   }
+//
+//   ValidateImplements((*MyInterface)(nil))
+//
+// You will only be able to validate interfaces with exported methods, you will not be
+// able to validate any that have one or more unexported methods.
 func ValidateImplements(checkV interface{}) BuildOption {
 	checkT := reflect.TypeOf(checkV)
 

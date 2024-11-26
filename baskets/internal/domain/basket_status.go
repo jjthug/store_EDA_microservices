@@ -5,13 +5,13 @@ type BasketStatus string
 const (
 	BasketUnknown      BasketStatus = ""
 	BasketIsOpen       BasketStatus = "open"
-	BasketIsCancelled  BasketStatus = "cancelled"
+	BasketIsCanceled   BasketStatus = "canceled"
 	BasketIsCheckedOut BasketStatus = "checked_out"
 )
 
 func (s BasketStatus) String() string {
 	switch s {
-	case BasketIsOpen, BasketIsCancelled, BasketIsCheckedOut:
+	case BasketIsOpen, BasketIsCanceled, BasketIsCheckedOut:
 		return string(s)
 	default:
 		return ""
@@ -22,8 +22,8 @@ func ToBasketStatus(status string) BasketStatus {
 	switch status {
 	case BasketIsOpen.String():
 		return BasketIsOpen
-	case BasketIsCancelled.String():
-		return BasketIsCancelled
+	case BasketIsCanceled.String():
+		return BasketIsCanceled
 	case BasketIsCheckedOut.String():
 		return BasketIsCheckedOut
 	default:

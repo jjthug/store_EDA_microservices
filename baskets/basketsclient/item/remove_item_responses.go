@@ -6,7 +6,6 @@ package item
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 
@@ -47,8 +46,7 @@ func NewRemoveItemOK() *RemoveItemOK {
 	return &RemoveItemOK{}
 }
 
-/*
-RemoveItemOK describes a response with status code 200, with default header values.
+/* RemoveItemOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,19 +79,12 @@ func (o *RemoveItemOK) IsCode(code int) bool {
 	return code == 200
 }
 
-// Code gets the status code for the remove item o k response
-func (o *RemoveItemOK) Code() int {
-	return 200
-}
-
 func (o *RemoveItemOK) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/removeItem][%d] removeItemOK %s", 200, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/removeItem][%d] removeItemOK  %+v", 200, o.Payload)
 }
 
 func (o *RemoveItemOK) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/removeItem][%d] removeItemOK %s", 200, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/removeItem][%d] removeItemOK  %+v", 200, o.Payload)
 }
 
 func (o *RemoveItemOK) GetPayload() models.BasketspbRemoveItemResponse {
@@ -117,8 +108,7 @@ func NewRemoveItemDefault(code int) *RemoveItemDefault {
 	}
 }
 
-/*
-RemoveItemDefault describes a response with status code -1, with default header values.
+/* RemoveItemDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,6 +116,11 @@ type RemoveItemDefault struct {
 	_statusCode int
 
 	Payload *models.RPCStatus
+}
+
+// Code gets the status code for the remove item default response
+func (o *RemoveItemDefault) Code() int {
+	return o._statusCode
 }
 
 // IsSuccess returns true when this remove item default response has a 2xx status code
@@ -153,19 +148,12 @@ func (o *RemoveItemDefault) IsCode(code int) bool {
 	return o._statusCode == code
 }
 
-// Code gets the status code for the remove item default response
-func (o *RemoveItemDefault) Code() int {
-	return o._statusCode
-}
-
 func (o *RemoveItemDefault) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/removeItem][%d] removeItem default %s", o._statusCode, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/removeItem][%d] removeItem default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveItemDefault) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/removeItem][%d] removeItem default %s", o._statusCode, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/removeItem][%d] removeItem default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveItemDefault) GetPayload() *models.RPCStatus {

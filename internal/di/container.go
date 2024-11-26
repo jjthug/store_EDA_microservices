@@ -6,6 +6,8 @@ import (
 	"sync"
 )
 
+// modeled after this excellent DI lib: https://github.com/sarulabs/di
+
 type Scope int
 
 const (
@@ -44,16 +46,13 @@ type container struct {
 	mu      sync.Mutex
 }
 
-// AddScoped implements Container.
-func (c *container) AddScoped(key string, fn DepFactoryFunc) {
-	c.deps[key] = depInfo{
-		key:     key,
-		scope:   Scoped,
-		factory: fn,
+func New() Container {
+	return &container{
+		deps: make(map[string]depInfo),
+		vals: make(map[string]any),
 	}
 }
 
-// AddSingleton implements Container.
 func (c *container) AddSingleton(key string, fn DepFactoryFunc) {
 	c.deps[key] = depInfo{
 		key:     key,
@@ -62,7 +61,14 @@ func (c *container) AddSingleton(key string, fn DepFactoryFunc) {
 	}
 }
 
-// Scoped implements Container.
+func (c *container) AddScoped(key string, fn DepFactoryFunc) {
+	c.deps[key] = depInfo{
+		key:     key,
+		scope:   Scoped,
+		factory: fn,
+	}
+}
+
 func (c *container) Scoped(ctx context.Context) context.Context {
 	return context.WithValue(ctx, containerKey, c.scoped())
 }
@@ -73,8 +79,9 @@ func (c *container) Get(key string) any {
 		panic(fmt.Sprintf("there is no dependency registered with `%s`", key))
 	}
 
+	// catch cases of: building Foo needs Bar and building Bar needs Foo :boom:
 	if _, exists := c.tracked[info.key]; exists {
-		panic(fmt.Sprintf("cyclic dependencies encountered while building `%s`, tracked %s", info.key, c.tracked))
+		panic(fmt.Sprintf("cyclic dependencies encountered while building `%s`, tracked: %s", info.key, c.tracked))
 	}
 
 	if info.scope == Singleton {
@@ -82,13 +89,13 @@ func (c *container) Get(key string) any {
 	}
 
 	return c.get(info)
-
 }
 
 func (c *container) getFromParent(info depInfo) any {
 	if c.parent != nil {
 		return c.parent.getFromParent(info)
 	}
+
 	return c.get(info)
 }
 
@@ -110,6 +117,7 @@ func (c *container) get(info depInfo) any {
 	}
 
 	<-tv
+
 	return c.get(info)
 }
 
@@ -122,13 +130,22 @@ func (c *container) build(info depInfo, tv tempValue) any {
 		delete(c.vals, info.key)
 		c.mu.Unlock()
 		close(tv)
-		panic(fmt.Sprintf("error building dependency %s: %s", info.key, err))
+		panic(fmt.Sprintf("error building dependency `%s`: %s", info.key, err))
 	}
 
 	c.vals[info.key] = v
 	c.mu.Unlock()
 	close(tv)
+
 	return v
+}
+
+func (c *container) scoped() *container {
+	return &container{
+		parent: c,
+		deps:   c.deps,
+		vals:   make(map[string]any),
+	}
 }
 
 func (c *container) builder(info depInfo) *container {
@@ -137,20 +154,5 @@ func (c *container) builder(info depInfo) *container {
 		deps:    c.deps,
 		vals:    c.vals,
 		tracked: c.tracked.add(info),
-	}
-}
-
-func New() Container {
-	return &container{
-		deps: make(map[string]depInfo),
-		vals: make(map[string]any),
-	}
-}
-
-func (c *container) scoped() *container {
-	return &container{
-		parent: c,
-		deps:   c.deps,
-		vals:   make(map[string]any),
 	}
 }

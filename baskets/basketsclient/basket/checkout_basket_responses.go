@@ -6,7 +6,6 @@ package basket
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 
@@ -47,8 +46,7 @@ func NewCheckoutBasketOK() *CheckoutBasketOK {
 	return &CheckoutBasketOK{}
 }
 
-/*
-CheckoutBasketOK describes a response with status code 200, with default header values.
+/* CheckoutBasketOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,19 +79,12 @@ func (o *CheckoutBasketOK) IsCode(code int) bool {
 	return code == 200
 }
 
-// Code gets the status code for the checkout basket o k response
-func (o *CheckoutBasketOK) Code() int {
-	return 200
-}
-
 func (o *CheckoutBasketOK) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/checkout][%d] checkoutBasketOK %s", 200, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/checkout][%d] checkoutBasketOK  %+v", 200, o.Payload)
 }
 
 func (o *CheckoutBasketOK) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/checkout][%d] checkoutBasketOK %s", 200, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/checkout][%d] checkoutBasketOK  %+v", 200, o.Payload)
 }
 
 func (o *CheckoutBasketOK) GetPayload() models.BasketspbCheckoutBasketResponse {
@@ -117,8 +108,7 @@ func NewCheckoutBasketDefault(code int) *CheckoutBasketDefault {
 	}
 }
 
-/*
-CheckoutBasketDefault describes a response with status code -1, with default header values.
+/* CheckoutBasketDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,6 +116,11 @@ type CheckoutBasketDefault struct {
 	_statusCode int
 
 	Payload *models.RPCStatus
+}
+
+// Code gets the status code for the checkout basket default response
+func (o *CheckoutBasketDefault) Code() int {
+	return o._statusCode
 }
 
 // IsSuccess returns true when this checkout basket default response has a 2xx status code
@@ -153,19 +148,12 @@ func (o *CheckoutBasketDefault) IsCode(code int) bool {
 	return o._statusCode == code
 }
 
-// Code gets the status code for the checkout basket default response
-func (o *CheckoutBasketDefault) Code() int {
-	return o._statusCode
-}
-
 func (o *CheckoutBasketDefault) Error() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/checkout][%d] checkoutBasket default %s", o._statusCode, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/checkout][%d] checkoutBasket default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CheckoutBasketDefault) String() string {
-	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PUT /api/baskets/{id}/checkout][%d] checkoutBasket default %s", o._statusCode, payload)
+	return fmt.Sprintf("[PUT /api/baskets/{id}/checkout][%d] checkoutBasket default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CheckoutBasketDefault) GetPayload() *models.RPCStatus {

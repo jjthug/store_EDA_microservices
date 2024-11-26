@@ -20,7 +20,7 @@ func Registrations(reg registry.Registry) error {
 	if err := serde.Register(&BasketStarted{}); err != nil {
 		return err
 	}
-	if err := serde.Register(&BasketCancelled{}); err != nil {
+	if err := serde.Register(&BasketCanceled{}); err != nil {
 		return err
 	}
 	if err := serde.Register(&BasketCheckedOut{}); err != nil {
@@ -31,5 +31,5 @@ func Registrations(reg registry.Registry) error {
 }
 
 func (*BasketStarted) Key() string    { return BasketStartedEvent }
-func (*BasketCancelled) Key() string  { return BasketCanceledEvent }
+func (*BasketCanceled) Key() string   { return BasketCanceledEvent }
 func (*BasketCheckedOut) Key() string { return BasketCheckedOutEvent }

@@ -1,15 +1,15 @@
 package grpc
 
 import (
-	"EDA_GO/baskets/internal/domain"
-	"EDA_GO/internal/rpc"
 	"context"
-
-	"EDA_GO/stores/storespb"
 
 	"github.com/stackus/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+
+	"EDA_GO/baskets/internal/domain"
+	"EDA_GO/internal/rpc"
+	"EDA_GO/stores/storespb"
 )
 
 type ProductRepository struct {

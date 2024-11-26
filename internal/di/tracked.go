@@ -1,6 +1,8 @@
 package di
 
-import "strings"
+import (
+	"strings"
+)
 
 type tracked map[string]int
 
@@ -10,7 +12,6 @@ func (s tracked) add(info depInfo) tracked {
 	for k, v := range s {
 		newList[k] = v
 	}
-
 	newList[info.key] = len(newList)
 
 	return newList

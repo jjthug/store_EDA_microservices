@@ -1,6 +1,8 @@
 package es
 
-import "EDA_GO/internal/ddd"
+import (
+	"EDA_GO/internal/ddd"
+)
 
 type (
 	Versioner interface {

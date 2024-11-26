@@ -41,6 +41,7 @@ func NewEventDispatcher[T Event]() *EventDispatcher[T] {
 		handlers: make([]eventHandler[T], 0),
 	}
 }
+
 func (h *EventDispatcher[T]) Subscribe(handler EventHandler[T], events ...string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()

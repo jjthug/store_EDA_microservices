@@ -1,9 +1,6 @@
 package system
 
 import (
-	"EDA_GO/internal/config"
-	"EDA_GO/internal/logger"
-	"EDA_GO/internal/waiter"
 	"context"
 	"database/sql"
 	"fmt"
@@ -12,8 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/nats-io/nats.go"
 	"github.com/pressly/goose/v3"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -27,6 +24,10 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"EDA_GO/internal/config"
+	"EDA_GO/internal/logger"
+	"EDA_GO/internal/waiter"
 )
 
 type System struct {
@@ -43,6 +44,7 @@ type System struct {
 
 func NewSystem(cfg config.AppConfig) (*System, error) {
 	s := &System{cfg: cfg}
+
 	s.initWaiter()
 
 	if err := s.initDB(); err != nil {
@@ -62,28 +64,34 @@ func NewSystem(cfg config.AppConfig) (*System, error) {
 	s.initLogger()
 
 	return s, nil
+}
 
+func (s *System) initOpenTelemetry() error {
+	exporter, err := otlptracegrpc.New(context.Background())
+	if err != nil {
+		return err
+	}
+
+	s.tp = sdktrace.NewTracerProvider(sdktrace.WithBatcher(exporter))
+	otel.SetTracerProvider(s.tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
+	s.waiter.Cleanup(func() {
+		if err := s.tp.Shutdown(context.Background()); err != nil {
+			s.logger.Error().Err(err).Msg("ran into an issue shutting down the tracer provider")
+		}
+	})
+
+	return nil
 }
 
 func (s *System) Config() config.AppConfig {
 	return s.cfg
 }
 
-func (s *System) initWaiter() {
-	s.waiter = waiter.New(waiter.CatchSignals())
-}
-
-func (s *System) Waiter() waiter.Waiter {
-	return s.waiter
-}
-
 func (s *System) initDB() (err error) {
 	s.db, err = sql.Open("pgx", s.cfg.PG.Conn)
 	return err
-}
-
-func (s *System) DB() *sql.DB {
-	return s.db
 }
 
 func (s *System) MigrateDB(fs fs.FS) error {
@@ -95,6 +103,10 @@ func (s *System) MigrateDB(fs fs.FS) error {
 		return err
 	}
 	return nil
+}
+
+func (s *System) DB() *sql.DB {
+	return s.db
 }
 
 func (s *System) initJS() (err error) {
@@ -119,23 +131,15 @@ func (s *System) JS() nats.JetStreamContext {
 	return s.js
 }
 
-func (s *System) initOpenTelemetry() (err error) {
-	exporter, err := otlptracegrpc.New(context.Background())
-	if err != nil {
-		return err
-	}
-
-	s.tp = sdktrace.NewTracerProvider(sdktrace.WithBatcher(exporter))
-	otel.SetTracerProvider(s.tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-
-	s.waiter.Cleanup(func() {
-		if err := s.tp.Shutdown(context.Background()); err != nil {
-			s.logger.Error().Err(err).Msg("ran into an issue shutting down the trace provider")
-		}
+func (s *System) initLogger() {
+	s.logger = logger.New(logger.LogConfig{
+		Environment: s.cfg.Environment,
+		LogLevel:    logger.Level(s.cfg.LogLevel),
 	})
+}
 
-	return nil
+func (s *System) Logger() zerolog.Logger {
+	return s.logger
 }
 
 func (s *System) initMux() {
@@ -154,6 +158,10 @@ func (s *System) initRpc() {
 			otelgrpc.UnaryServerInterceptor(),
 			serverErrorUnaryInterceptor(),
 		),
+		// If there are streaming endpoints also add
+		// grpc.StreamInterceptor(
+		// 	otelgrpc.StreamServerInterceptor(),
+		// ),
 	)
 	reflection.Register(s.rpc)
 }
@@ -162,15 +170,19 @@ func (s *System) RPC() *grpc.Server {
 	return s.rpc
 }
 
-func serverErrorUnaryInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
-		resp, err = handler(ctx, req)
-		return resp, errors.SendGRPCError(err)
-	}
+func (s *System) initWaiter() {
+	s.waiter = waiter.New(waiter.CatchSignals())
+}
+
+func (s *System) Waiter() waiter.Waiter {
+	return s.waiter
 }
 
 func (s *System) WaitForWeb(ctx context.Context) error {
-	webServer := &http.Server{Addr: s.cfg.Web.Address(), Handler: s.mux}
+	webServer := &http.Server{
+		Addr:    s.cfg.Web.Address(),
+		Handler: s.mux,
+	}
 
 	group, gCtx := errgroup.WithContext(ctx)
 	group.Go(func() error {
@@ -181,7 +193,6 @@ func (s *System) WaitForWeb(ctx context.Context) error {
 		}
 		return nil
 	})
-
 	group.Go(func() error {
 		<-gCtx.Done()
 		fmt.Println("web server to be shutdown")
@@ -205,13 +216,12 @@ func (s *System) WaitForRPC(ctx context.Context) error {
 	group, gCtx := errgroup.WithContext(ctx)
 	group.Go(func() error {
 		fmt.Println("rpc server started")
-		defer fmt.Println("rpc server shudown")
-		if err := s.RPC().Serve(listener); err != nil {
+		defer fmt.Println("rpc server shutdown")
+		if err := s.RPC().Serve(listener); err != nil && err != grpc.ErrServerStopped {
 			return err
 		}
 		return nil
 	})
-
 	group.Go(func() error {
 		<-gCtx.Done()
 		fmt.Println("rpc server to be shutdown")
@@ -223,9 +233,9 @@ func (s *System) WaitForRPC(ctx context.Context) error {
 		timeout := time.NewTimer(s.cfg.ShutdownTimeout)
 		select {
 		case <-timeout.C:
-			// Force stop
+			// Force it to stop
 			s.RPC().Stop()
-			return fmt.Errorf("failed to stop rpc server gracefully")
+			return fmt.Errorf("rpc server failed to stop gracefully")
 		case <-stopped:
 			return nil
 		}
@@ -246,21 +256,16 @@ func (s *System) WaitForStream(ctx context.Context) error {
 		<-closed
 		return nil
 	})
-
 	group.Go(func() error {
 		<-gCtx.Done()
 		return s.nc.Drain()
 	})
-
 	return group.Wait()
 }
 
-func (s *System) initLogger() {
-	s.logger = logger.New(logger.LogConfig{
-		Environment: s.cfg.Environment,
-		LogLevel:    logger.Level(s.cfg.LogLevel),
-	})
-}
-func (s *System) Logger() zerolog.Logger {
-	return s.logger
+func serverErrorUnaryInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		resp, err = handler(ctx, req)
+		return resp, errors.SendGRPCError(err)
+	}
 }

@@ -1,10 +1,10 @@
 package domain
 
 import (
+	"github.com/stackus/errors"
+
 	"EDA_GO/internal/ddd"
 	"EDA_GO/internal/es"
-
-	"github.com/stackus/errors"
 )
 
 const BasketAggregate = "baskets.Basket"
@@ -53,7 +53,6 @@ func (b *Basket) Start(customerID string) (ddd.Event, error) {
 	})
 
 	return ddd.NewEvent(BasketStartedEvent, b), nil
-
 }
 
 func (b Basket) IsCancellable() bool {
@@ -162,7 +161,7 @@ func (b *Basket) ApplyEvent(event ddd.Event) error {
 
 	case *BasketCanceled:
 		b.Items = make(map[string]Item)
-		b.Status = BasketIsCancelled
+		b.Status = BasketIsCanceled
 
 	case *BasketCheckedOut:
 		b.PaymentID = payload.PaymentID

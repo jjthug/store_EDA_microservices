@@ -1,16 +1,17 @@
 package handlers
 
 import (
-	"EDA_GO/baskets/basketspb"
-	"EDA_GO/baskets/internal/domain"
-	"EDA_GO/internal/am"
-	"EDA_GO/internal/ddd"
-	"EDA_GO/internal/errorsotel"
 	"context"
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+
+	"EDA_GO/baskets/basketspb"
+	"EDA_GO/baskets/internal/domain"
+	"EDA_GO/internal/am"
+	"EDA_GO/internal/ddd"
+	"EDA_GO/internal/errorsotel"
 )
 
 type domainHandlers[T ddd.Event] struct {
@@ -61,6 +62,7 @@ func (h domainHandlers[T]) HandleEvent(ctx context.Context, event T) (err error)
 	}
 	return nil
 }
+
 func (h domainHandlers[T]) onBasketStarted(ctx context.Context, event ddd.Event) error {
 	basket := event.Payload().(*domain.Basket)
 	return h.publisher.Publish(ctx, basketspb.BasketAggregateChannel,
@@ -74,7 +76,7 @@ func (h domainHandlers[T]) onBasketStarted(ctx context.Context, event ddd.Event)
 func (h domainHandlers[T]) onBasketCanceled(ctx context.Context, event ddd.Event) error {
 	basket := event.Payload().(*domain.Basket)
 	return h.publisher.Publish(ctx, basketspb.BasketAggregateChannel,
-		ddd.NewEvent(basketspb.BasketCanceledEvent, &basketspb.BasketCancelled{
+		ddd.NewEvent(basketspb.BasketCanceledEvent, &basketspb.BasketCanceled{
 			Id: basket.ID(),
 		}),
 	)

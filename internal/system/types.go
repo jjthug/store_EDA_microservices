@@ -1,8 +1,6 @@
 package system
 
 import (
-	"EDA_GO/internal/config"
-	"EDA_GO/internal/waiter"
 	"context"
 	"database/sql"
 
@@ -10,6 +8,9 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
+
+	"EDA_GO/internal/config"
+	"EDA_GO/internal/waiter"
 )
 
 type Service interface {

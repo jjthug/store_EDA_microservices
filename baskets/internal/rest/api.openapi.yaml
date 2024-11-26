@@ -3,7 +3,7 @@ openapiOptions:
     - file: "basketspb/api.proto"
       option:
         info:
-          title: Shopping baskets
+          title: Shopping Baskets
           version: "1.0.0"
         basePath: /
   method:
@@ -30,16 +30,16 @@ openapiOptions:
         operationId: checkoutBasket
         tags:
           - Basket
-        summary: Checkout a shopping basket
+        summary: Checkout with a shopping basket
     - method: basketspb.BasketService.AddItem
       option:
         operationId: addItem
         tags:
           - Item
-        summary: Add an item with with some quantity to the basket
+        summary: Add or add quantity to an item in the shopping basket
     - method: basketspb.BasketService.RemoveItem
       option:
         operationId: removeItem
         tags:
           - Item
-        summary: Remove some quantity of an item from the basket
+        summary: Remove or remove quantity to an item in the shopping basket

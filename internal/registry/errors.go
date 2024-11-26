@@ -1,6 +1,8 @@
 package registry
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type (
 	UnregisteredKey      string
@@ -12,5 +14,5 @@ func (key UnregisteredKey) Error() string {
 }
 
 func (key AlreadyRegisteredKey) Error() string {
-	return fmt.Sprintf("key %s has already been registered", string(key))
+	return fmt.Sprintf("something with the key `%s` has already been registered", string(key))
 }

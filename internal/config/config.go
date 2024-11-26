@@ -1,13 +1,15 @@
 package config
 
 import (
-	"EDA_GO/internal/rpc"
-	"EDA_GO/internal/web"
 	"os"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
+
 	"github.com/stackus/dotenv"
+
+	"EDA_GO/internal/rpc"
+	"EDA_GO/internal/web"
 )
 
 type (
@@ -24,7 +26,6 @@ type (
 		ServiceName      string `envconfig:"SERVICE_NAME" default:"mallbots"`
 		ExporterEndpoint string `envconfig:"EXPORTER_OTLP_ENDPOINT" default:"http://collector:4317"`
 	}
-
 	AppConfig struct {
 		Environment     string
 		LogLevel        string `envconfig:"LOG_LEVEL" default:"DEBUG"`
@@ -41,6 +42,7 @@ func InitConfig() (cfg AppConfig, err error) {
 	if err = dotenv.Load(dotenv.EnvironmentFiles(os.Getenv("ENVIRONMENT"))); err != nil {
 		return
 	}
+
 	err = envconfig.Process("", &cfg)
 
 	return
